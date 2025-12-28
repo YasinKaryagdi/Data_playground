@@ -1,6 +1,7 @@
 import cv2
 import argparse
 from helper_functions import *
+from grid import Grid_Square
 
 def run(save = False,
         name = "output",
@@ -18,19 +19,17 @@ def run(save = False,
         fourcc = cv2.VideoWriter_fourcc(*'mp4v')
         out = cv2.VideoWriter(f'{name}.mp4', fourcc, 20.0, (frame_width, frame_height))
 
-    # stores all possible cell sizes,
-    # current cell is stored as index i
-    cell_size = get_common_divisors(frame_width, frame_height)
 
-    # starts with biggest possible
-    i = len(cell_size) - 1
+    # starts with biggest possible cell size
+    grid = Grid_Square(frame_width, frame_height, shape_type=shape, dims=[0,1,2])
+
     while True:
         ret, frame = cam.read()
 
         # making changes to the frame
-        for x in range(0, frame_width // cell_size[i]) :
-            for y in range(0, frame_height // cell_size[i]):
-                set_grid_mean_rand_triangle_mask(x, y, frame, cell_size[i])
+        for x in range(0, grid.width):
+            for y in range(0, grid.height):
+                grid.draw(x, y, frame)
 
 
         # write the frame to the output file
@@ -40,19 +39,31 @@ def run(save = False,
         # display the captured frame
         cv2.imshow('Camera', frame)
 
-        # press 'q' to exit the loop,
-        # press 'm' to increase cell size,
-        # press 'n' to decrease cell size
+        
+        # if nothing is pressed skips the rest of the loop,
+        # ensures that the video feed doesn't suffer too much from these checks
         pressed_key = cv2.waitKey(1)
+        if pressed_key == -1:
+            continue
+
+        # press 'q' to exit the loop,
+        # press 'n' or 'm' to change cell size,
+        # press 'l' or 'k' to change function type,
+        # press 'o' or 'p' to change filter type,
         if pressed_key == ord('q'):
             break
-        elif pressed_key == ord('m'):
-            # making sure it doesn't go out of bound
-            if i < (len(cell_size) - 1):
-                i += 1
         elif pressed_key == ord('n'):
-            if i > 1:
-                i -= 1
+            grid.decrease_cell_size()
+        elif pressed_key == ord('m'):
+            grid.increase_cell_size()
+        elif pressed_key == ord('k'):
+            grid.change_funct_down()
+        elif pressed_key == ord('l'):
+            grid.change_funct_up()
+        elif pressed_key == ord('o'):
+            grid.change_filter_down()
+        elif pressed_key == ord('p'):
+            grid.change_filter_up()
 
     # Release the capture and writer objects
     cam.release()
@@ -62,6 +73,7 @@ def run(save = False,
 
 
 def parse_opt():
+    #todo: need to go through these later
     parser = argparse.ArgumentParser()
     parser.add_argument("--save", action="store_true", help="do not save images/videos")
     parser.add_argument("--name", default="output", help="save results to project/name")
