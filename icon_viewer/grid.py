@@ -14,9 +14,8 @@ class Grid_Square:
                  #cell_w = 1,
                  shape_type = "square",
                  function = np.mean,
-                 dims = [0,1,2]):
+                 dims = {0,1,2}):
         #todo: implement switching random on or off for triangle_rand (and other shapes)
-
         self.possible_cell_sizes = get_common_divisors(frame_width, frame_height)
         curr_index = len(self.possible_cell_sizes) - 1
 
@@ -47,6 +46,23 @@ class Grid_Square:
         self.dims = dims
         
 
+    def draw_grid(self, image):
+        self.blackout_dims(image, self.dims)
+
+        for x in range(0, self.width):
+            for y in range(0, self.height):
+                self.draw(x, y, image)
+
+
+    # used to blackout dims that are not being used
+    @staticmethod
+    def blackout_dims(image, used_dims):
+        # True means to black out, False means to keep
+        mask = np.ones(3, dtype=bool)
+        mask[list(used_dims)] = False
+        image[:, :, mask] = 0
+
+
     def draw(self, x, y, image):
         if self.shape_type == "square":
             set_cell_square(x, y, image, self.cell_h, self.cell_w, self.dims, self.function)
@@ -57,6 +73,17 @@ class Grid_Square:
             set_cell_triangle(x, y, image, self.cell_h, self.cell_w, self.dims, self.function)
         elif self.shape_type == "triangle_rand":
             set_cell_triangle_rand(x, y, image, self.cell_h, self.cell_w, self.dims, self.function)
+
+
+    def flip_specified_dim(self, image, dim):
+        # making sure that the dim is valid
+        if dim >= image.shape[2]:
+            raise ValueError(f"dim must be less than {image.shape[2]}, but got {dim}")
+        
+        if dim in self.dims:
+            self.dims.remove(dim)
+        else:
+            self.dims.add(dim)
 
 
     def increase_cell_size(self):

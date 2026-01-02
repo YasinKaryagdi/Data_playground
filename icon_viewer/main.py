@@ -21,15 +21,14 @@ def run(save = False,
 
 
     # starts with biggest possible cell size
-    grid = Grid_Square(frame_width, frame_height, shape_type=shape, dims=[0,1,2])
+    grid = Grid_Square(frame_width, frame_height, shape_type=shape, dims={0,1,2})
 
     while True:
         ret, frame = cam.read()
 
         # making changes to the frame
-        for x in range(0, grid.width):
-            for y in range(0, grid.height):
-                grid.draw(x, y, frame)
+        grid.draw_grid(frame)
+
 
 
         # write the frame to the output file
@@ -50,6 +49,7 @@ def run(save = False,
         # press 'n' or 'm' to change cell size,
         # press 'l' or 'k' to change function type,
         # press 'o' or 'p' to change filter type,
+        # press '1', '2', or '3' to flip the corresponding dimension
         if pressed_key == ord('q'):
             break
         elif pressed_key == ord('n'):
@@ -64,6 +64,12 @@ def run(save = False,
             grid.change_filter_down()
         elif pressed_key == ord('p'):
             grid.change_filter_up()
+        elif pressed_key == ord('1'):
+            grid.flip_specified_dim(frame, 0)
+        elif pressed_key == ord('2'):
+            grid.flip_specified_dim(frame, 1)
+        elif pressed_key == ord('3'):
+            grid.flip_specified_dim(frame, 2)
 
     # Release the capture and writer objects
     cam.release()
