@@ -40,7 +40,7 @@ def set_cell_cross(x, y, image, cell_h, cell_w, dims, funct = np.mean):
     image[row_slice, col_slice] = [255,255,255]
 
 
-def set_cell_triangle(x, y, image, cell_h, cell_w, dims, funct = np.mean):
+def set_cell_triangle(x, y, image, cell_h, cell_w, dims, funct = np.mean, value = 0):
     # get block boundaries
     row_start = y * cell_h
     row_end   = (y + 1) * cell_h
@@ -50,44 +50,16 @@ def set_cell_triangle(x, y, image, cell_h, cell_w, dims, funct = np.mean):
     # change whole cell to funct
     for i in dims:
         image[row_start:row_end, col_start:col_end, i] = funct(image[row_start:row_end, col_start:col_end, i])
-
     
-    if x % 2 == 0:
-        if y % 2 == 0:
-            for i in range(0, cell_h):
-                image[(y * cell_h):((y + 1 )* cell_h - i), col_start + i ] = [255, 255, 255]
-        else:
-            for i in range(0, cell_h):
-                image[row_start + i :((y + 1 )* cell_h), col_start + i ] = [255, 255, 255]
-    else:
-        if y % 2 == 0:
-            for i in range(0, cell_h):
-                image[(y * cell_h):row_start + i, col_start + i ] = [255, 255, 255]
-        else:
-            for i in range(0, cell_h):
-                image[row_start + i :((y + 1 )* cell_h), (col_end - i - 1) ] = [255, 255, 255]
-
-
-def set_cell_triangle_rand(x, y, image, cell_h, cell_w, dims, funct = np.mean):
-    # get block boundaries
-    row_start = y * cell_h
-    row_end   = (y + 1) * cell_h
-    col_start = x * cell_w
-    col_end   = (x + 1) * cell_w
-
-    # change whole cell to funct
-    for i in dims:
-        image[row_start:row_end, col_start:col_end, i] = funct(image[row_start:row_end, col_start:col_end, i])
-
-    rand = random.choice([0, 1, 2, 3])
-    
-    if rand == 0:
+    # determine which piece it is based on parity,
+    # (so for example value 0 is top-left, 1 is top-right etc.)
+    if value == 0:
         for i in range(0, cell_h):
             image[(y * cell_h):((y + 1 )* cell_h - i), col_start + i ] = [255, 255, 255]
-    elif rand == 1:
+    elif value == 1:
         for i in range(0, cell_h):
             image[row_start + i :((y + 1 )* cell_h), col_start + i ] = [255, 255, 255]
-    elif rand == 2:
+    elif value == 2:
         for i in range(0, cell_h):
             image[(y * cell_h):row_start + i, col_start + i ] = [255, 255, 255]
     else:

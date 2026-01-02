@@ -29,8 +29,6 @@ def run(save = False,
         # making changes to the frame
         grid.draw_grid(frame)
 
-
-
         # write the frame to the output file
         if(save):
             out.write(frame)
@@ -49,6 +47,7 @@ def run(save = False,
         # press 'n' or 'm' to change cell size,
         # press 'l' or 'k' to change function type,
         # press 'o' or 'p' to change filter type,
+        # press 'r' to toggle randomization,
         # press '1', '2', or '3' to flip the corresponding dimension
         if pressed_key == ord('q'):
             break
@@ -64,6 +63,8 @@ def run(save = False,
             grid.change_filter_down()
         elif pressed_key == ord('p'):
             grid.change_filter_up()
+        elif pressed_key == ord('r'):
+            grid.flip_random()
         elif pressed_key == ord('1'):
             grid.flip_specified_dim(frame, 0)
         elif pressed_key == ord('2'):
@@ -80,6 +81,7 @@ def run(save = False,
 
 def parse_opt():
     #todo: need to go through these later
+    # todo, need to expand these to incorporate new functionalities like random etc.
     parser = argparse.ArgumentParser()
     parser.add_argument("--save", action="store_true", help="do not save images/videos")
     parser.add_argument("--name", default="output", help="save results to project/name")

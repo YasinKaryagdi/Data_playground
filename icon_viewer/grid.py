@@ -14,7 +14,8 @@ class Grid_Square:
                  #cell_w = 1,
                  shape_type = "square",
                  function = np.mean,
-                 dims = {0,1,2}):
+                 dims = {0,1,2},
+                 random = False):
         #todo: implement switching random on or off for triangle_rand (and other shapes)
         self.possible_cell_sizes = get_common_divisors(frame_width, frame_height)
         curr_index = len(self.possible_cell_sizes) - 1
@@ -44,14 +45,52 @@ class Grid_Square:
         self.function = function
 
         self.dims = dims
-        
+
+        self.random = random
+        self.init_board()
+        self.frame_counter = 0
+
+        # todo: make these two adjustable,
+        # fix issue where for low random treshold the board is a load of 0's, 
+        # most likely since that's the default?
+        self.random_rate = 5
+
+        # high threshold means high probablilty of changing
+        self.random_threshold = 0.05
+
+
+    def init_board(self):
+        self.board = [[0 for _ in range(self.height)] for _ in range(self.width)]
+        for x in range(0, self.width):
+            for y in range(0, self.height):
+                if x % 2 == 0:
+                    if y % 2 == 0:
+                            self.board[x][y] = 0
+                    else:
+                            self.board[x][y] = 1
+                else:
+                    if y % 2 == 0:
+                            self.board[x][y] = 2
+                    else:
+                            self.board[x][y] = 3
+
+    def randomize_board(self):
+        self.board = [[0 for _ in range(self.height)] for _ in range(self.width)]
+        for x in range(0, self.width):
+            for y in range(0, self.height):
+                if random.uniform(0,1) <= self.random_threshold:
+                    self.board[x][y] = random.randint(0,3)
 
     def draw_grid(self, image):
+        # maybe move this somewhere else since it's a bit misrepresentative of function name
+        self.randomize_board() if self.random and self.frame_counter % self.random_rate == 0 else None
+        self.frame_counter += 1
+
         self.blackout_dims(image, self.dims)
 
         for x in range(0, self.width):
             for y in range(0, self.height):
-                self.draw(x, y, image)
+                self.draw(x, y, self.board[x][y], image)
 
 
     # used to blackout dims that are not being used
@@ -63,16 +102,14 @@ class Grid_Square:
         image[:, :, mask] = 0
 
 
-    def draw(self, x, y, image):
+    def draw(self, x, y, value, image):
         if self.shape_type == "square":
             set_cell_square(x, y, image, self.cell_h, self.cell_w, self.dims, self.function)
             # set_cell_white(x, y, image, self.cell_h, self.cell_w)
         elif self.shape_type == "cross":
             set_cell_cross(x, y, image, self.cell_h, self.cell_w, self.dims, self.function)
         elif self.shape_type == "triangle":
-            set_cell_triangle(x, y, image, self.cell_h, self.cell_w, self.dims, self.function)
-        elif self.shape_type == "triangle_rand":
-            set_cell_triangle_rand(x, y, image, self.cell_h, self.cell_w, self.dims, self.function)
+            set_cell_triangle(x, y, image, self.cell_h, self.cell_w, self.dims, self.function, value)
 
 
     def flip_specified_dim(self, image, dim):
@@ -86,6 +123,15 @@ class Grid_Square:
             self.dims.add(dim)
 
 
+    def flip_random(self):
+        self.random = not self.random
+
+        # need to check if this is redundant, might be doing this double
+        if self.random:
+            self.randomize_board()
+        else:
+            self.init_board()
+
     def increase_cell_size(self):
         curr_index = self.possible_cell_sizes.index(self.cell_h)
 
@@ -96,6 +142,10 @@ class Grid_Square:
             self.width = self.frame_width // self.cell_w
             self.height = self.frame_height // self.cell_h
 
+        if self.random:
+            self.randomize_board()
+        else:
+            self.init_board()
 
     def decrease_cell_size(self):
         curr_index = self.possible_cell_sizes.index(self.cell_h)
@@ -106,6 +156,12 @@ class Grid_Square:
             self.cell_w = self.possible_cell_sizes[curr_index]
             self.width = self.frame_width // self.cell_w
             self.height = self.frame_height // self.cell_h
+
+        if self.random:
+            self.randomize_board()
+        else:
+            self.init_board()
+
 
 
     # added for quick comparison/testing
