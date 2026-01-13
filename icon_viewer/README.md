@@ -1,6 +1,18 @@
 # Icon Viewer
 Inspired by The Icon Viewer by Karel Martens. The goal of the project is to preprocess the frames that a camera captures, and to display these frames afterwards. 
 
+# Running
+In order to run the project simply run the main.py file with:
+python main.py
+
+Wait a while for the live inference to start. After the window pops take note of the following keys you can press to change the image processing:
+-press 'q' to exit the loop,
+-press 'n' or 'm' to change cell size,
+-press 'l' or 'k' to change function type,
+-press 'o' or 'p' to change filter type,
+-press 'r' to toggle randomization,
+-press '1', '2', or '3' to flip the corresponding dimension
+
 ## Current issues
 Flexibility comes at the cost of computational recources. 
 I want the ability to change between certain configurations, therefore I'm going with a class based approach where I can modify members in order to decide what to draw within the cells. This allows for easy experimentation with the various configurations.
